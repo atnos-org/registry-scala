@@ -1,2 +1,9 @@
-*.class
-*.log
+.hydra
+.DS_Store
+.idea/*
+target/
+.settings
+
+hydra-timings.csv
+hydra.log
+**/partition.hydra

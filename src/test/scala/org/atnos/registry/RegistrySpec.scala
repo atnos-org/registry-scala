@@ -7,14 +7,38 @@ import scala.reflect.runtime.universe._
 
 class RegistrySpec extends Specification with ScalaCheck { def is = s2"""
 
- register a value, a function and get the output $register1
+ make a value without function call
+   for an Int   $register1
+   for a String $register2
+                                                                       
+ make a value without a function call
+   with one argument  $register3
+   with two arguments $register4
 
 """
 
   def register1 = {
-    val registry = 1  +: C1 +: C2 +: over
-    val a = registry.pp.make[Int]
+    val registry = 1 +: C1 +: C2 +: *:
+    val a = registry.make[Int]
     a ==== 1
+  }
+
+  def register2 = {
+    val registry = 1 +: "hey" +: C1 +: C2 +: *:
+    val a = registry.make[String]
+    a ==== "hey"
+  }
+
+  def register3 = {
+    val registry = 1 +: C1 +: C2 +: *:
+    val a = registry.make[C1]
+    a ==== C1(1)
+  }
+
+  def register4 = {
+    val registry = 1 +: "hey" +: C1 +: C2 +: *:
+    val a = registry.make[C2]
+    a ==== C2("hey", 1)
   }
 
 }
@@ -31,7 +55,7 @@ object Examples {
      end
 }
 
-case class Function(fun: Any)
+import cats.implicits._
 
 
 case class Registry[+Ins <: HList, +Out <: HList](values: List[(Any, TypeTag[_])], functions: List[(Any, TypeTag[_])]) {
@@ -47,16 +71,39 @@ case class Registry[+Ins <: HList, +Out <: HList](values: List[(Any, TypeTag[_])
   def make[A : TypeTag]: A =
     makeOption.get
 
-  def makeOption[A : TypeTag]: Option[A] =
-    findValue[A]
+  def makeOption[A](implicit tag: TypeTag[A]): Option[A] =
+    makeValueFromType(tag.tpe).map(_.asInstanceOf[A])
 
-  def findValue[A](implicit tag: TypeTag[A]): Option[A] =
-    values.collectFirst { case (a, t) if t == tag => a.asInstanceOf[A] }
+  def makeValueFromType(tpe: Type): Option[Any] =
+    findValue(tpe).orElse(constructValue(tpe))
 
-  def findFunctionWithResult[A](implicit tag: TypeTag[A]): Option[Any] =
-    functions.collectFirst { case (a, t) if t.tpe.resultType == tag =>
+  def findValue(tpe: Type): Option[Any] =
+    values.collectFirst { case (a, t) if t.tpe.toString == tpe.toString =>
       a
     }
+
+  def constructValue(tpe: Type): Option[Any] =
+    findFunctionWithResult(tpe).flatMap { case (f, functionTag) =>
+      findInputs(functionTag).map { inputs =>
+        applyFunction(f, inputs)
+      }
+    }
+
+  def findFunctionWithResult(tpe: Type): Option[(Any, TypeTag[_])] =
+    functions.collectFirst { case (f, t) if t.tpe.typeArgs.last == tpe =>
+      (f, t)
+    }
+
+  def findInputs(functionTag: TypeTag[_]): Option[List[Any]] = {
+    val inputTypes = functionTag.tpe.typeArgs.dropRight(1)
+    inputTypes.traverse(makeValueFromType)
+  }
+
+  def applyFunction(f: Any, inputs: List[Any]): Any = {
+    val method = f.getClass.getDeclaredMethods.filter(_.getName == "apply").head
+    method.invoke(f, inputs.asInstanceOf[Seq[Object]]:_*)
+  }
+
 }
 
 
@@ -75,7 +122,7 @@ object Registry extends RegistryLowOps {
   def end: Registry[HNil.type, HNil.type] =
     Registry[HNil.type, HNil.type](Nil, Nil)
 
-  def over: Registry[HNil.type, HNil.type] =
+  def *: : Registry[HNil.type, HNil.type] =
     end
 
 }

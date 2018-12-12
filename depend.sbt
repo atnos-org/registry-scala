@@ -18,4 +18,6 @@ lazy val specs2 = Seq(
   , "org.specs2" %% "specs2-junit").map(_ % specs2Version % "test")
 
 lazy val cats = Seq(
-  "org.typelevel" %% "cats-core" % catsVersion)
+  "org.typelevel" %% "cats-core"   % catsVersion,
+  "org.typelevel" %% "cats-effect" % "1.1.0"
+)

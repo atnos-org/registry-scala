@@ -37,11 +37,11 @@ case class Company(departments: List[Department])
 case class Department(employees: List[Employee])
 case class Employee(name: Name, age: Age)
 
-case class Name(value: Text)
+case class Name(value: String)
 case class Age(value: Int)
 
 -- this code uses a fictive `Json` library providing functions to create Json values
--- like `string`, `number`, `obj`, `arr`, `.=`
+-- like `string`, `number`, `obj`, `arr`, `:=`
 
 def nameEncoder(name: Name): Json
   string(name.value)
@@ -51,14 +51,14 @@ def ageEncoder(age: Age): Json
   number(name.value)
 
 def employeeEncoder(employee: Employee): Json = 
-  obj("n" .= nameEncoder(employee.name), 
-      "a" .= ageEncoder(employee.age))
+  obj("n" := nameEncoder(employee.name), 
+      "a" := ageEncoder(employee.age))
       
 def departmentEncoder(department: Department): Json = 
-  obj("employees" .= arr(department.employees.map(employeeEncoder))
+  obj("employees" := arr(department.employees.map(employeeEncoder))
   
 def companyEncoder(company: Company): Json = 
-  obj("departments" .= arr(company.departments.map(departmentEncoder))
+  obj("departments" := arr(company.departments.map(departmentEncoder))
 ```
 
 Once given a `companyEncoder` you can encode any `Company`, great! However you are restricted to just one implementation. 
@@ -66,14 +66,14 @@ If you want to change some of the field names, for example use better fields nam
 `age` instead of `n` and `a`, you need redefine *all* your encoders and "thread" a specific `employeeEncoder` from the top:
 ```
 def employeeEncoder1(employee: Employee): Json =
-  obj("name" .= nameEncoder(employee.age), 
-      "age" .= ageEncoder(employee.age))
+  obj("name" := nameEncoder(employee.age), 
+      "age" := ageEncoder(employee.age))
 
 def departmentEncoder1(empEncoder: Employee => Json)(department: Department): Json =
-  obj("employees" .= arr(department.employees.map(empEncoder))
+  obj("employees" := arr(department.employees.map(empEncoder))
 
 def companyEncoder1(dptEncoder: Department => Json)(company: Company): Json =
-  obj("departments" .= arr(company.departments.map(dptEncoder))
+  obj("departments" := arr(company.departments.map(dptEncoder))
 ```
 
 Then you can define
@@ -144,8 +144,7 @@ val app =
     logging,
     companyRepository,
     impageProcessing,
-    s3Access,
-    }
+    s3Access)
 ```
 
 ##### The solution

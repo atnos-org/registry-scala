@@ -14,7 +14,7 @@ You can watch a video presenting the main ideas behind the library [here](https:
 The following sections introduce in more details the problem that this library is addressing, the concepts behind the solution and various use-cases which can arise on real projects:
 
  1. [what is the problem](doc/motivation.md)?
- 1. **TODO** the concept of a Registry and the resolution algorithm
+ 1. the concept of a [Registry](doc/registry.md) and the resolution algorithm
  1. **TODO** how does this compare to monad and effects?
  
 ## Tutorials

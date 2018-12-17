@@ -1,9 +1,8 @@
 package org.atnos.registry
 
 import org.specs2.Specification
-import org.atnos.registry._
-import Json._
 import Encoders._
+import Registry._
 
 class EncodersExampleSpec extends Specification { def is = s2"""
 

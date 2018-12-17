@@ -11,7 +11,7 @@ object HNil extends HList {
   def ::[H](h : H) = org.atnos.registry.::(h, this)
 }
 
-object HList {
+trait HLists {
 
   implicit class HListOps[T <: HList](tail: T) {
     def ::[H](h : H) : H :: T = org.atnos.registry.::(h, tail)
@@ -19,3 +19,4 @@ object HList {
 }
 
 
+object HList extends HLists

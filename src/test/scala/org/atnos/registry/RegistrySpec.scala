@@ -27,11 +27,15 @@ Effectful components
 
 Constructors can be lifted to a given monad $lift1
 
+Display
+=======
+
+The registry can be printed $print1
 
 """
 
   def register1 = {
-    val registry = 1 +: C1 +: C2 +: rend
+    val registry = 1 +: "hey" +: C1 +: C2 +: rend
     val a = registry.make[Int]
     a ==== 1
   }
@@ -43,7 +47,7 @@ Constructors can be lifted to a given monad $lift1
   }
 
   def register3 = {
-    val registry = 1 +: C1 +: C2 +: rend
+    val registry = 1 +: "hey" +: C1 +: C2 +: rend
     val a = registry.make[C1]
     a ==== C1(1)
   }
@@ -69,6 +73,18 @@ Constructors can be lifted to a given monad $lift1
 
     val database = registry.make[IO[Database[IO]]]
     database.unsafeRunSync must beLike { case PostgresDatabase(_, _) => ok }
+  }
+
+  def print1 = {
+    val registry = 1 +: "hey" +: C1 +: C2 +: rend
+    registry.toString ====
+    """|
+       |1: Int
+       |hey: String
+       |
+       |Int => org.atnos.registry.C1
+       |(String, Int) => org.atnos.registry.C2
+       |""".stripMargin
   }
 
 }

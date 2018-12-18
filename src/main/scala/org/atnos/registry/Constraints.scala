@@ -24,6 +24,14 @@ trait Constraints {
   implicit def subsetRecursive[A, Ins <: HList, B, Out <: HList](implicit contains: Contains[A, Out], subset: Subset[Ins, Out]): Subset[A :: Ins, Out] =
     new Subset[A :: Ins, Out] {}
 
+  trait Add[H1 <: HList, H2 <: HList, R <: HList]
+
+  implicit def add0[H <: HList]: Add[HNil.type, H, H] =
+    new Add[HNil.type, H, H] {}
+
+  implicit def add1[A, H1 <: HList, H2 <: HList, H3 <: HList](implicit add: Add[H1, H2, H3]): Add[A :: H1, H2, A :: H3] =
+    new Add[A :: H1, H2, A :: H3] {}
+
 }
 
 object Constraints extends Constraints

@@ -65,6 +65,8 @@ The registry can be printed $print1
   }
 
   def lift1 = {
+    import Components._
+
     val registry =
       DatabaseConfig("host", 5432).to[IO] +:
       Database.newDatabase[IO].liftArgs +:

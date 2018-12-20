@@ -29,6 +29,10 @@ import scala.reflect.runtime.universe._
  */
 case class Registry[Ins <: HList, Out <: HList](values: List[(Any, TypeTag[_])], functions: List[(Any, TypeTag[_])]) {
 
+  def <+>[Ins1 <: HList, Out1 <: HList, AddedIns <: HList, AddedOut <: HList](other: Registry[Ins1, Out1])(implicit addIns: Add[Ins1, Ins, AddedIns], addOut: Add[Out1, Out, AddedOut]):
+  Registry[AddedIns, AddedOut] =
+    Registry(this.values ++ other.values, this.functions ++ other.functions)
+
   /** API */
 
   def make[A : TypeTag](implicit contains: Contains[A, Out], subset: Subset[Ins, Out]): A =

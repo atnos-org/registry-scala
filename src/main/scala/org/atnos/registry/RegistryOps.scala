@@ -8,9 +8,6 @@ trait RegistryImplicits extends RegistryLowImplicits with Constraints with HList
     def +:[A1, R](f: A1 => R)(implicit tag: TypeTag[A1 => R]): Registry[A1 :: Ins, R :: Out] =
       addFunction1(r)(f)
 
-    def <+>[Ins1 <: HList, Out1 <: HList, AddedIns <: HList, AddedOut <: HList](other: Registry[Ins1, Out1])(implicit addIns: Add[Ins1, Ins, AddedIns], addOut: Add[Out1, Out, AddedOut]):
-      Registry[AddedIns, AddedOut] =
-      Registry(r.values ++ other.values, r.functions ++ other.functions)
   }
 
   implicit class RegistryOps2[Ins <: HList, Out <: HList](r: Registry[Ins, Out]) {
